@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
@@ -70,9 +71,12 @@ export function HeroSection() {
 
         <div className="relative">
           <div className="overflow-hidden rounded-3xl border bg-card p-2 shadow-xl">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
               alt="Students learning with a mentor on MentorLagbe"
+              width={1200}
+              height={900}
+              priority
               className="aspect-[4/3] w-full rounded-2xl object-cover"
             />
           </div>

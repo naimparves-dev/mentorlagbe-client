@@ -25,45 +25,54 @@ function PaymentSuccessContent() {
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    if (!sessionId) {
-      setVerifying(false);
-      setErrorMsg("Missing Stripe session ID.");
-      return;
-    }
+  // Derived during render instead of being pushed into the effect: a missing
+  // session id is knowable immediately, so there is nothing to synchronise.
+  const missingSession = !sessionId;
+  const showVerifying = !missingSession && verifying;
+  const displayError = missingSession ? "Missing Stripe session ID." : errorMsg;
 
+  useEffect(() => {
+    if (!sessionId) return;
+
+    let active = true;
     (async () => {
       try {
         const res = await verifyStripeSessionAction(sessionId);
+        if (!active) return;
         setReceipt(res.payment);
         await refreshUser();
         toast.success("Pro Plan activated!");
       } catch (err: unknown) {
+        if (!active) return;
         setErrorMsg(
           err instanceof Error ? err.message : "Could not verify payment."
         );
       } finally {
-        setVerifying(false);
+        if (active) setVerifying(false);
       }
     })();
+
+    return () => {
+      active = false;
+    };
   }, [sessionId, refreshUser]);
 
   return (
     <main className="mx-auto flex min-h-[75vh] max-w-lg flex-col justify-center px-4 py-14 text-center">
       <Card className="p-8">
-        {verifying ? (
+        {showVerifying ? (
           <div className="flex flex-col items-center gap-3 py-8">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
             <p className="text-sm font-semibold text-muted-foreground">
               Verifying your Stripe payment and upgrading your account...
             </p>
           </div>
-        ) : errorMsg ? (
+        ) : displayError ? (
           <div className="space-y-4">
             <h1 className="text-2xl font-extrabold text-rose-600">
               Verification Issue
             </h1>
-            <p className="text-sm text-muted-foreground">{errorMsg}</p>
+            <p className="text-sm text-muted-foreground">{displayError}</p>
             <Link href="/pricing">
               <Button>Return to Pricing</Button>
             </Link>

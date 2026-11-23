@@ -3,6 +3,7 @@ import type {
   Application,
   PaymentRecord,
   Tuition,
+  UserPlan,
   UserProfile,
 } from "@/types";
 
@@ -15,7 +16,7 @@ export async function getStudentStats() {
       pending: number;
       rejected: number;
       bookmarksCount: number;
-      plan: string;
+      plan: UserPlan;
     };
   }>("/api/applications/student/stats");
 }
@@ -42,7 +43,7 @@ export async function getTutorStats() {
       activeApproved: number;
       pendingApproval: number;
       totalApplicants: number;
-      plan: string;
+      plan: UserPlan;
       postLimit: number | null;
     };
   }>("/api/tuitions/tutor/stats");

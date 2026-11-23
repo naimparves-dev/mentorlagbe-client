@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Upload, Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImageToImgBB } from "@/lib/action/imgbb";
@@ -54,7 +55,13 @@ export function ImageUploader({
         className={`relative overflow-hidden rounded-xl border border-dashed bg-muted/40 ${aspectClass}`}
       >
         {value ? (
-          <img src={value} alt="Preview" className="h-full w-full object-cover" />
+          <Image
+            src={value}
+            alt="Preview"
+            fill
+            sizes="(max-width: 640px) 50vw, 128px"
+            className="object-cover"
+          />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 text-muted-foreground">
             <ImageIcon className="h-8 w-8" />

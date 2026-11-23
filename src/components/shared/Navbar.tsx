@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   GraduationCap,
@@ -95,7 +96,7 @@ export function Navbar() {
               </Link>
 
               <div className="flex items-center gap-2 rounded-full border bg-secondary/60 py-1 pl-1.5 pr-3">
-                <img
+                <Image
                   src={
                     user.image ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -103,6 +104,8 @@ export function Navbar() {
                     )}&background=0d9488&color=fff`
                   }
                   alt={user.name}
+                  width={28}
+                  height={28}
                   className="h-7 w-7 rounded-full object-cover"
                 />
                 <div className="flex flex-col leading-tight">

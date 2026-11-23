@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Crown } from "lucide-react";
 import { toast } from "sonner";
 import { getAdminUsers } from "@/lib/api/dashboard";
@@ -70,7 +71,7 @@ export default function AdminUsersPage() {
                 <TableRow key={u._id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <img
+                      <Image
                         src={
                           u.image ||
                           `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -78,6 +79,8 @@ export default function AdminUsersPage() {
                           )}&background=0d9488&color=fff`
                         }
                         alt={u.name}
+                        width={36}
+                        height={36}
                         className="h-9 w-9 rounded-full object-cover"
                       />
                       <span className="font-bold">{u.name}</span>

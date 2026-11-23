@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   GraduationCap,
@@ -150,7 +151,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <div className="border-b p-4">
           <div className="flex items-center gap-3">
-            <img
+            <Image
               src={
                 user.image ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -158,6 +159,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 )}&background=0d9488&color=fff`
               }
               alt={user.name}
+              width={40}
+              height={40}
               className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-primary/30"
             />
             {!collapsed && (

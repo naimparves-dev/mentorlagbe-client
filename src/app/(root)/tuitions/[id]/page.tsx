@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   BookOpen,
@@ -39,7 +40,11 @@ export default function TuitionDetailsPage() {
 
   const [tuition, setTuition] = useState<Tuition | null>(null);
   const [tutor, setTutor] = useState<Partial<UserProfile> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const tuitionId = params?.id ?? null;
+  // The page is loading until the details for the *current* id have settled —
+  // derived state, so no `setLoading(true)` is needed inside the effect.
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const loading = tuitionId === null || loadedId !== tuitionId;
 
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [studentPhone, setStudentPhone] = useState("");
@@ -51,28 +56,34 @@ export default function TuitionDetailsPage() {
   const [comment, setComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
 
-  const loadDetails = async () => {
-    if (!params?.id) return;
-    setLoading(true);
-    try {
-      const res = await getTuitionDetails(params.id);
-      setTuition(res.tuition);
-      setTutor(res.tutor);
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to load tuition");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadDetails = useCallback(() => {
+    if (!tuitionId) return Promise.resolve();
+    return getTuitionDetails(tuitionId)
+      .then((res) => {
+        setTuition(res.tuition);
+        setTutor(res.tutor);
+        setLoadedId(tuitionId);
+      })
+      .catch((err: unknown) => {
+        setTuition(null);
+        setTutor(null);
+        setLoadedId(tuitionId);
+        toast.error(
+          err instanceof Error ? err.message : "Failed to load tuition"
+        );
+      });
+  }, [tuitionId]);
 
   useEffect(() => {
     loadDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params?.id]);
+  }, [loadDetails]);
 
-  useEffect(() => {
-    if (user?.phone) setStudentPhone(user.phone);
-  }, [user?.phone]);
+  // Prefilling happens when the modal is opened (an event handler) rather than
+  // in an effect that mirrors `user.phone` into local state.
+  const openApplyModal = () => {
+    setStudentPhone((prev) => prev || user?.phone || "");
+    setShowApplyModal(true);
+  };
 
   const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,9 +176,11 @@ export default function TuitionDetailsPage() {
         <div className="space-y-8 lg:col-span-2">
           <Card className="overflow-hidden">
             <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-              <img
+              <Image
                 src={tuition.bannerImage}
                 alt={tuition.title}
+                width={1200}
+                height={675}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -313,7 +326,7 @@ export default function TuitionDetailsPage() {
                 Your Mentor
               </p>
               <div className="mt-4 flex items-center gap-3.5">
-                <img
+                <Image
                   src={
                     tutor?.image ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -321,6 +334,8 @@ export default function TuitionDetailsPage() {
                     )}&background=0d9488&color=fff`
                   }
                   alt={tuition.tutorName}
+                  width={56}
+                  height={56}
                   className="h-14 w-14 rounded-full object-cover ring-2 ring-primary/30"
                 />
                 <div>
@@ -356,7 +371,7 @@ export default function TuitionDetailsPage() {
                     <Button
                       size="lg"
                       className="w-full"
-                      onClick={() => setShowApplyModal(true)}
+                      onClick={openApplyModal}
                     >
                       <Send className="h-4 w-4" />
                       Apply for Tuition

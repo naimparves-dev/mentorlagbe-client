@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { getStudentBookmarks } from "@/lib/api/dashboard";
 import { TuitionCard } from "@/components/tuitions/TuitionCard";
@@ -13,22 +13,21 @@ export default function StudentSavedTuitionsPage() {
   const [limit, setLimit] = useState<number | null>(5);
   const [loading, setLoading] = useState(true);
 
-  const loadBookmarks = async () => {
-    setLoading(true);
-    try {
-      const res = await getStudentBookmarks();
-      setBookmarks(res.bookmarks || []);
-      setLimit(res.limit);
-    } catch {
-      setBookmarks([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Loading only flips off (never back on synchronously inside an effect), so
+  // re-fetching after a bookmark toggle just refreshes the grid in place.
+  const loadBookmarks = useCallback(() => {
+    getStudentBookmarks()
+      .then((res) => {
+        setBookmarks(res.bookmarks || []);
+        setLimit(res.limit);
+      })
+      .catch(() => setBookmarks([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     loadBookmarks();
-  }, []);
+  }, [loadBookmarks]);
 
   return (
     <div className="space-y-6">

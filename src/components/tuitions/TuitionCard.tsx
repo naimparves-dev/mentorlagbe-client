@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   MapPin,
   Calendar,
@@ -50,12 +51,14 @@ export function TuitionCard({ tuition, onBookmarkChange }: TuitionCardProps) {
   return (
     <Card className="group flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-        <img
+        <Image
           src={
             tuition.bannerImage ||
             "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
           }
           alt={tuition.title}
+          width={1200}
+          height={750}
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         />
         <div className="absolute left-3 top-3 flex items-center gap-1.5">

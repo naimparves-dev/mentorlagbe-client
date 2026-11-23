@@ -28,16 +28,27 @@ const STATUS_VARIANT = {
 export default function AdminTuitionsPage() {
   const [tuitions, setTuitions] = useState<Tuition[]>([]);
   const [filterStatus, setFilterStatus] = useState("all");
-  const [loading, setLoading] = useState(true);
+  // The list is "loading" until the data for the *current* filter arrives, so
+  // no `setLoading(true)` is needed inside the effect.
+  const [loadedStatus, setLoadedStatus] = useState<string | null>(null);
+  const loading = loadedStatus !== filterStatus;
 
   useEffect(() => {
-    setLoading(true);
+    let active = true;
     getAdminTuitions(filterStatus)
-      .then((res) => setTuitions(res.tuitions || []))
-      .catch((err: unknown) =>
-        toast.error(err instanceof Error ? err.message : "Failed to load")
-      )
-      .finally(() => setLoading(false));
+      .then((res) => {
+        if (!active) return;
+        setTuitions(res.tuitions || []);
+        setLoadedStatus(filterStatus);
+      })
+      .catch((err: unknown) => {
+        if (!active) return;
+        setLoadedStatus(filterStatus);
+        toast.error(err instanceof Error ? err.message : "Failed to load");
+      });
+    return () => {
+      active = false;
+    };
   }, [filterStatus]);
 
   const handleModerate = async (
